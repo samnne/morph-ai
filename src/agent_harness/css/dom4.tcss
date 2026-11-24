@@ -1,0 +1,23 @@
+Vertical {
+    align: center middle;
+    padding: 5;
+    
+}
+Input {
+ 
+    width: 1fr;
+    height: 5;
+    border: vkey purple;   
+    align: center middle;
+}
+
+Label {
+
+    width: 100%;
+    margin: 2 0;
+}
+
+/* The button class */
+Button {
+    width: 1fr;
+}

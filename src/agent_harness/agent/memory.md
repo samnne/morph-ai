@@ -1,0 +1,14 @@
+The user has asked for facts about McDonald's.
+- fact The user requested a Python script named poem.py that prints a poem line by line.
+- fact The user requested changing poem.py from printing a poem to fetching and printing a dad joke using an API.
+- fact The user asked me to run poem.py in their workspace.
+- fact The user asked me to run poem.py in the workspace.
+- fact The user asked me to run poem.py in the workspace.
+- fact The user's workspace contains Python files including agent.py, config.py, memory.py, poem.py, tools.py, and v0.py.
+- fact The user's workspace contains Python files including tools.py, config.py, agent.py, v0.py, memory.py, and poem.py.
+- fact The user requested running poem.py in the workspace.
+- fact The user wants their existing Python agent built into a real terminal user interface (TUI).
+- fact The user wants a read-only audit of their agent repository and explicitly does not want code written or changed.
+- fact The user requested a listing of the files and directories in the current workspace.
+- fact The user is working with a project whose src directory contains an agent_harness subdirectory.
+- fact The user's current workspace contains Python project files (pyproject.toml, uv.lock, src) and Go files (go.mod, morph.go).
