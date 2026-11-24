@@ -12,3 +12,6 @@ The user has asked for facts about McDonald's.
 - fact The user requested a listing of the files and directories in the current workspace.
 - fact The user is working with a project whose src directory contains an agent_harness subdirectory.
 - fact The user's current workspace contains Python project files (pyproject.toml, uv.lock, src) and Go files (go.mod, morph.go).
+- fact The user asked to list the contents of src/agent_harness/.
+- fact The user requested a recursive nested tree of the current workspace, including src and every directory.
+- fact The user is working on the agent-harness (MorphAI) project and wants its README to reflect the current implementation.

@@ -11,7 +11,12 @@ from mcp import ClientSession, stdio_client
 from agent_harness.agent.config import WORKSPACE, MCP_SERVERS, MEMORY
 
 
-def list_files() -> str:
+def list_files(dir: str) -> str:
+    dir_path = Path(dir)
+    if not dir_path.is_dir():
+        return "(Not Directory)"
+    elif dir_path.is_dir():
+        return "\n".join(p.name for p in dir_path.iterdir()) or "(empty)"
     return "\n".join(p.name for p in WORKSPACE.iterdir()) or "(empty)"
 
 
@@ -116,7 +121,12 @@ TOOLS_SCHEMA = [
         "description": "List the files available in the workspace.",
         "parameters": {
             "type": "object",
-            "properties": {},
+            "properties": {
+                "dir": {
+                    "type": "string",
+                    "description": "a path to the directory"
+                }
+                },
             "additionalProperties": False,
         },
     },
