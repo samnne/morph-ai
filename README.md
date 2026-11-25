@@ -1,5 +1,9 @@
 # MorphAI (TUI Agent Harness)
 
+
+https://github.com/user-attachments/assets/daaa66a0-3fa3-4233-9f5b-e4dd3e544226
+
+
 A Python AI-agent harness with a Textual terminal UI, local filesystem and command tools, and Model Context Protocol (MCP) integrations. The model client includes OpenAI Responses and OpenAI-compatible Chat Completions implementations.
 
 This is a work in progress. The TUI is the primary interface; the older CLI and some integrations need fixes described under [Current limitations](#current-limitations).
