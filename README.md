@@ -156,8 +156,6 @@ main.py                 # Textual app; run directly from the repository root
 modals.py               # SessionModal placeholder
 pyproject.toml          # Dependencies and script declarations
 uv.lock                 # Dependency lockfile
-main.spec               # Initial PyInstaller configuration
-sessions.json           # Existing session data; no active save/restore wiring
 agent/
 ├── agent.py            # Model configuration, shared history, API/tool loops
 ├── config.py           # Environment defaults, workspace, memory path, MCP servers
@@ -189,4 +187,3 @@ The checkout also contains empty `database/`, `docker/`, and `service/` director
 - **Workspace handling:** Workspace switching does not validate paths or support paths with spaces. `list_files` does not consistently use the selected workspace: its intended `.` special case compares a `Path` with a string and is never reached.
 - **Error and cancellation handling:** The TUI response worker has no explicit error cleanup for its activity indicator. New submissions use an exclusive worker and can cancel an active response. The CLI exits its prompt loop after request errors rather than offering recovery in place.
 - **History and limits:** There is no conversation reset command, history trimming, active session persistence, or configured tool-loop iteration limit.
-- **Packaging:** The script entry points need cleanup. `main.spec` is an initial PyInstaller spec with no explicitly bundled CSS or memory files; it is not a complete portable distribution configuration.
