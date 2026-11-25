@@ -43,3 +43,4 @@ The user has asked for facts about McDonald's.
 - fact The user requested a current workspace listing; it includes agent, css, database, docker, service, config, pyqt, dist, main.py, modals.py, __init__.py, sessions.json, README.md, pyproject.toml, uv.lock, and hidden project/environment files.
 - fact The user's current workspace contains CSC321, seng_365_b01_1, NOC, CG-Fall-2026, SENG310, and CSC360.
 - fact The user states that the pyqt app was built by an agent and is intended to be removed in the future.
+- fact The user wants the agent-harness README.md synchronized with the current implementation, including its root-level project layout.

@@ -1,16 +1,16 @@
 # Agent Harness (MorphAI)
 
-A Python agent harness with a Textual terminal UI, an interactive command-line loop, local filesystem/process tools, and Model Context Protocol (MCP) integrations. The model client supports OpenAI's Responses API and OpenAI-compatible Chat Completions endpoints.
+A Python AI-agent harness with a Textual terminal UI, local filesystem and command tools, and Model Context Protocol (MCP) integrations. The model client includes OpenAI Responses and OpenAI-compatible Chat Completions implementations.
 
-This is an early implementation. See [Current limitations](#current-limitations) for differences between the interfaces and known issues.
+This is a work in progress. The TUI is the primary interface; the older CLI and some integrations need fixes described under [Current limitations](#current-limitations).
 
 ## Requirements
 
 - Python 3.13 or newer.
-- [uv](https://docs.astral.sh/uv/) for the commands below. The CLI also requires `uvx` on `PATH` to launch its configured MCP servers.
-- Access to a hosted model API or a local OpenAI-compatible server. Tool use requires a model/server that supports function calling.
+- [uv](https://docs.astral.sh/uv/), including `uvx` on `PATH` for the configured MCP servers.
+- A model API key and access to a model that supports function calling, or a compatible local server.
 
-Dependencies are declared in `pyproject.toml`: `dotenv`, `mcp`, `openai`, `pydantic`, and `textual`.
+Dependencies are declared in `pyproject.toml`, including `dotenv`, `mcp`, `openai`, `pydantic`, `pyfiglet`, `pyinstaller`, and `textual`. PyQt6 is only needed for the separate temporary desktop app.
 
 ## Setup
 
@@ -20,9 +20,7 @@ From the repository root:
 uv sync
 ```
 
-Before using filesystem or command tools, edit `workspace` in `src/agent_harness/agent/config.py` to point to your checkout or intended working directory. It is currently hard-coded to `/home/mashce/Work/agent_harness`; it is not inferred from your current directory or configurable through an environment variable.
-
-Create a `.env` file in the project root, for example:
+Create a `.env` file in the project root:
 
 ```dotenv
 OPENAI_API_KEY=your-api-key
@@ -33,19 +31,19 @@ OPENAI_API_MODE=responses
 
 `.env` is ignored by Git. Do not commit credentials.
 
-### Configuration
+### Model configuration
 
-Environment variables are loaded with `python-dotenv`.
+Environment variables are loaded with `python-dotenv` in `agent/config.py`.
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `CHAT_KEY` | Unset | API key; takes precedence over `OPENAI_API_KEY` when nonempty. |
 | `OPENAI_API_KEY` | Unset | API key when `CHAT_KEY` is not set. |
-| `OPENAI_MODEL` | `gpt-6.1-sol` | Model identifier sent to the configured endpoint. Set this to a model available from your provider. |
-| `OPENAI_BASE_URL` | `https://api.openai.com/v1` | OpenAI-compatible API base URL. Include `/v1` if your server requires it. |
-| `OPENAI_API_MODE` | `responses` | `responses` for the Responses API, or `chat` for Chat Completions. |
+| `OPENAI_MODEL` | `gpt-6.1-sol` | Model identifier. Set this to a model available from your provider. |
+| `OPENAI_BASE_URL` | `https://api.openai.com/v1` | API base URL, including `/v1` if required by your provider. |
+| `OPENAI_API_MODE` | `responses` | `responses` or `chat`; see the Chat Completions limitation below. |
 
-For a keyless local server, provide a placeholder key and select its model:
+For a keyless local server, use a placeholder key and the server's model name:
 
 ```dotenv
 OPENAI_API_KEY=local
@@ -54,92 +52,141 @@ OPENAI_BASE_URL=http://localhost:11434/v1
 OPENAI_API_MODE=chat
 ```
 
-Make sure `CHAT_KEY` is unset if you want `OPENAI_API_KEY` to be used. Chat Completions tool execution currently has a known issue described below.
+Unset `CHAT_KEY` if you want `OPENAI_API_KEY` to take effect. Chat-only servers currently encounter the API-mode fallthrough bug described below.
 
-## Running
+### Workspace
 
-### Textual terminal UI
+The initial workspace is configured in `agent/config.py` as `settings.workspace`. It is currently hard-coded to `/home/mashce/Work/agent_harness`, not inferred from the directory where you launch the app.
 
-```sh
-uv run agent-harness
-# Equivalent short entry point:
-uv run ah
+Either change that setting before launch or use the TUI command:
+
+```text
+/workspace /absolute/path/to/project
 ```
 
-Both commands launch the `Morph` Textual app, which displays a “Welcome to MorphAI” greeting and a prompt input. Submit a prompt with Enter; the UI displays your prompt and the final assistant response.
+`/ws /absolute/path/to/project` also works. The selected path appears on the button below the prompt. Workspace changes apply only to the running process and are not saved to configuration.
 
-The UI uses environment-based model configuration and exposes the local tools. It does **not** currently initialize MCP connections or handle the CLI slash commands.
+Use an existing absolute path without spaces: the current command parser only consumes the first space-delimited path token and does not validate that the directory exists. `~` is expanded.
 
-### Interactive CLI
+## Running the terminal UI
+
+Run from the repository root:
 
 ```sh
-uv run python -m agent_harness.agent.v0
+uv run python main.py
 ```
 
-This interface initializes the configured MCP servers before accepting prompts.
+This launches the `Morph` Textual app with an ASCII logo, the Catppuccin Mocha theme, a scrollable conversation area, a multiline prompt, a workspace indicator, and an animated activity indicator.
+
+- Type a prompt and press **Shift+Enter** to submit it.
+- Agent requests run in a Textual async worker.
+- Assistant responses are rendered as Markdown.
+- Tool activity is shown alongside the conversation. In Responses mode, the UI displays tool names and arguments; in Chat Completions mode, it displays returned tool content.
+- The app attempts to connect to MCP servers in a background worker at startup; see the lifecycle limitation below.
+
+### TUI commands
+
+Submit these with **Shift+Enter**:
 
 | Command | Action |
 | --- | --- |
-| `/model` | Interactively configure the provider, base URL, model, API mode, and API key. |
-| `/tools` | List available local and discovered MCP tools. |
-| `/quit` or `/exit` | End the session. |
+| `/workspace PATH` or `/ws PATH` | Change the active workspace. |
+| `/tools` | List local tool definitions and any discovered MCP tools. |
+| `/commands` | Display command help. |
 
-The `/model` provider choices are `current`, `openai`, `local`, and `compatible`. API keys are entered without echoing and model changes apply only to the current process; they are not written to `.env`. Switching endpoints does not silently reuse the previous endpoint's key. The `local` option supplies a placeholder for keyless servers when no key is entered.
+The help text spells the workspace command `/workspaces`; the current substring-based handler also accepts that spelling. `/model`, `/quit`, and `/exit` are not TUI slash commands. Use Textual's default Ctrl+Q binding to quit.
 
-Ctrl+C or end-of-input also exits the prompt loop. The CLI needs its MCP servers to start successfully before `/model` is available.
+The project still declares `agent-harness` and `ah` script entries in `pyproject.toml`, but `[tool.uv] package = false` disables installing the project during `uv sync`, and the `ah` target is not a valid `module:function` entry point. Use the direct command above rather than relying on those shortcuts.
 
-## Tools
+## Local tools
 
-### Local tools
-
-| Tool | Implementation |
+| Tool | Current behavior |
 | --- | --- |
-| `list_files` | Lists immediate entries in the supplied directory. Relative paths use the process's current directory. |
-| `read_file` | Reads a text file relative to `workspace` unless an absolute path is supplied. |
-| `write_file` | Creates/overwrites a file, or replaces individual lines containing a case-insensitive match. See the caveats below. |
-| `execute_command` | Runs an executable with an argument list, with `workspace` as its working directory, and captures output. This is not limited to Python commands. |
-| `save_memory` | Appends a fact to `src/agent_harness/agent/memory.md`. |
+| `list_files` | Lists immediate directory entries. Relative paths are resolved against the process working directory, not the selected workspace. |
+| `read_file` | Reads a text file relative to the selected workspace, or an absolute path. |
+| `write_file` | Creates/overwrites a file or replaces lines containing a case-insensitive match. See limitations below. |
+| `execute_command` | Runs an allowed executable in the selected workspace and captures its output. |
+| `save_memory` | Appends a user fact to `agent/memory.md`, independently of the selected workspace. |
 
-**Safety:** Tools run with your user account's permissions. There is no approval step, workspace containment enforcement, or command sandbox. Only use this harness with trusted prompts and an appropriately restricted environment. Tool names and arguments are printed to the terminal and may contain sensitive data.
+Command execution currently allows `ls`, `git`, `cat`, `head`, `tail`, `grep`, `find`, `tree`, `pwd`, `pytest`, `python`, and `uv`. Executables are resolved from `PATH`. Arguments containing a `..` path component are rejected. Commands have a 30-second timeout, and returned output is truncated after 10,000 characters.
 
-### MCP servers
+**Safety:** These restrictions are not a sandbox. Allowed commands such as `python`, `uv`, and `git` can execute code, and file tools accept paths outside the selected workspace. Tools run with your user's permissions and without approval prompts. Use a restricted environment and trusted inputs. Tool names and arguments are also printed to the terminal and may contain sensitive data.
 
-`MCP_SERVERS` in `src/agent_harness/agent/config.py` configures two stdio servers:
+## MCP integrations
+
+`settings.MCP_SERVERS` in `agent/config.py` configures two stdio servers:
 
 - `time`: `uvx mcp-server-time`
 - `fetch`: `uvx mcp-server-fetch`
 
-The CLI starts these processes, initializes MCP sessions, discovers their tools, and adds them to the model's tool schema. MCP tool calls are routed to the corresponding session. Edit `MCP_SERVERS` to change the integrations. Initial startup may require network access for `uvx` to obtain the server packages.
+`agent/tools.py` starts the processes, initializes sessions, discovers tools, adds their definitions to `TOOLS_SCHEMA`, and routes calls to the matching session. Initial startup may require network access for `uvx` to obtain the server packages. Edit `settings.MCP_SERVERS` to change the integrations.
 
-## Agent flow and memory
+The CLI holds its MCP context open for its prompt loop. The TUI currently closes its MCP context when its connection worker finishes, so discovery does not mean those tools remain usable.
 
-`agent.py` creates an async OpenAI client on demand and sends a system prompt plus the user's message to the selected model. In Responses mode, it executes returned function calls, adds their results to the request history, and repeats until the model returns a final response.
+## Conversation history and memory
 
-Each `chat()` invocation starts a new message list: conversation history is retained within a single tool-call loop, not across separate user prompts. The UI displays previous exchanges, but does not send that transcript back to the model.
+`agent/agent.py` maintains a module-level `messages` list. User prompts, assistant messages, tool calls, and tool results accumulate across prompts in the same process. The model's tool loop continues until it returns a final response; it is not token streaming.
 
-The memory helpers are intended to persist user facts in `src/agent_harness/agent/memory.md`. This is separate from `workspace`; see the current memory-loading bug below.
+At module import, `load_memory()` reads `settings.MEMORY` (by default `agent/memory.md`) into the system prompt. The `save_memory` tool appends facts to that file. Newly saved facts are not automatically reloaded into the already-created system prompt.
+
+Conversation history is not currently saved or restored between runs. `agent/memory.py` contains a `Session` data class, but session-writing code is commented out; the presence of `sessions.json` does not indicate active session persistence.
+
+## Legacy interactive CLI
+
+```sh
+uv run python -m agent.v0
+```
+
+The CLI initializes MCP servers and provides these commands:
+
+| Command | Action |
+| --- | --- |
+| `/model` | Configure provider, base URL, model, API mode, and API key for the current process. |
+| `/tools` | Print local and discovered MCP tool definitions. |
+| `/quit` or `/exit` | End the session. |
+
+`/model` supports `current`, `openai`, `local`, and `compatible` providers. Keys are entered without echoing, are not saved to `.env`, and are not silently reused for a different endpoint. The local option supplies a placeholder key when needed.
+
+**The CLI's normal prompt path is currently broken:** it uses `await chat(question)`, but `chat()` is now an async generator and must be consumed with `async for`. Slash commands are handled separately, but submitting a normal prompt raises an error and exits the loop. MCP startup must also succeed before the prompt loop becomes available.
 
 ## Project layout
 
 ```text
-pyproject.toml                       # Dependencies and agent-harness / ah entry points
-src/agent_harness/
-├── main.py                          # Textual app and installed entry point
-├── css/dom4.tcss                     # Terminal UI styling
-└── agent/
-    ├── agent.py                     # Model configuration, API calls, tool-call loops
-    ├── config.py                    # Environment defaults, workspace, MCP servers
-    ├── tools.py                     # Local tools, schemas, MCP discovery and routing
-    ├── v0.py                        # Interactive CLI and /model configuration
-    ├── memory.py                    # Memory-loading helper
-    └── memory.md                    # Persisted user facts
+main.py                 # Textual app; run directly from the repository root
+modals.py               # SessionModal placeholder
+pyproject.toml          # Dependencies and script declarations
+uv.lock                 # Dependency lockfile
+main.spec               # Initial PyInstaller configuration
+sessions.json           # Existing session data; no active save/restore wiring
+agent/
+├── agent.py            # Model configuration, shared history, API/tool loops
+├── config.py           # Environment defaults, workspace, memory path, MCP servers
+├── tools.py            # Local tools, command restrictions, MCP discovery/routing
+├── v0.py               # Legacy CLI and interactive model configuration
+├── memory.py           # Memory loader and session data class
+├── memory.md           # Persisted user facts
+└── poem.py             # Standalone helper script
+config/
+└── logo.py             # ASCII branding for the TUI
+css/
+└── dom4.tcss           # Textual styling
+pyqt/                   # Temporary, independent PyQt6 to-do app
 ```
+
+The checkout also contains empty `database/`, `docker/`, and `service/` directories; these are not implemented services. Generated `build/` and `dist/` directories are ignored by Git.
+
+### Temporary PyQt app
+
+`pyqt/` contains an independent, agent-built PyQt6 to-do application with local JSON storage and storage tests. It is **temporary and planned for removal**, not part of the MorphAI interface. See [pyqt/README.md](pyqt/README.md) for its setup and test commands. PyQt6 is not included in the main project's dependencies.
 
 ## Current limitations
 
-- **Chat Completions tool results:** The `chat` API branch calls the async `_run_tool()` helper without `await`. Ordinary text responses can work, but tool-call results are not correctly resolved in that branch. The Responses branch awaits tool execution.
-- **Memory loading:** The system prompt interpolates `load_memory` rather than calling `load_memory()`, so saved facts are not currently injected into the prompt.
-- **File writes:** `write_file` ignores its `mode` argument. An empty `old_lines` overwrites the file rather than appending, despite the tool schema's description. Nonempty matches are replaced line by line, not as a multiline block. Parent directories must already exist, and replacement files are set to mode `0777`.
-- **UI/CLI differences:** Only the CLI connects MCP servers and implements `/model`, `/tools`, and exit commands. The UI displays final responses rather than streaming tokens.
-- **Error recovery:** A request exception in the CLI exits the prompt loop after printing an error, even though the message suggests using `/model` to recover. Restart the CLI to reconfigure after such a failure.
-- **Execution limits:** Command execution is synchronous and has no configured timeout. The agent's tool-call loop has no configured iteration limit.
+- **Chat Completions fallthrough:** Tool calls are now correctly awaited in both API branches, but the `chat` branch has no return after its loop. It falls through into the Responses API loop, potentially issuing an unsupported request and mixing API-specific history formats. Prefer `responses` with a compatible provider for now.
+- **CLI async-generator mismatch:** The legacy CLI awaits `chat()` rather than iterating over it, so ordinary prompts fail as described above.
+- **TUI MCP lifecycle:** The connection worker exits its `AsyncExitStack` after discovery, closing the sessions while their tool definitions remain registered. Connection and response workers also share Textual's default exclusive worker group, so submitting a prompt can cancel an in-progress connection.
+- **Blocking tools:** Local tool functions run synchronously inside the async agent loop. Filesystem work and command execution can still block the UI event loop even though requests run in a worker.
+- **File writes:** `write_file` ignores `mode`, rejects empty `new_lines`, and overwrites rather than appends when `old_lines` is empty. Matching is case-insensitive and line-by-line, not a multiline block replacement. Parent directories must exist, and replacement files are given permissions `0777`.
+- **Workspace handling:** Workspace switching does not validate paths or support paths with spaces. `list_files` does not consistently use the selected workspace: its intended `.` special case compares a `Path` with a string and is never reached.
+- **Error and cancellation handling:** The TUI response worker has no explicit error cleanup for its activity indicator. New submissions use an exclusive worker and can cancel an active response. The CLI exits its prompt loop after request errors rather than offering recovery in place.
+- **History and limits:** There is no conversation reset command, history trimming, active session persistence, or configured tool-loop iteration limit.
+- **Packaging:** The script entry points need cleanup. `main.spec` is an initial PyInstaller spec with no explicitly bundled CSS or memory files; it is not a complete portable distribution configuration.
