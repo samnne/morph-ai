@@ -11,13 +11,19 @@ class Settings:
     MODEL = os.getenv("OPENAI_MODEL", "gpt-6.1-sol")
     BASE_URL = os.getenv("OPENAI_BASE_URL") or "https://api.openai.com/v1"
     API_MODE = os.getenv("OPENAI_API_MODE", "responses")
-    workspace = Path("/home/mashce/Work/agent_harness")
+    workspace = Path()
     MEMORY = Path(__file__).parent / "memory.md"
-
+    
 
     MCP_SERVERS = {
         "time": StdioServerParameters(command="uvx", args=["mcp-server-time"]),
         "fetch": StdioServerParameters(command="uvx", args=["mcp-server-fetch"]),
     }
+    def __init__(self):
+        self.workspace = Path()
+    def set_workspace(self, ws):
+        self.workspace = ws
+    def get_workspace(self) -> str:
+        return self.workspace
 
 settings = Settings()

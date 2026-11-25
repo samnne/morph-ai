@@ -80,4 +80,7 @@ TextArea:focus {
 Button {
     background: $background;
     text-align: left;
+   
+    width: 50;
+    margin-left: 1;
 }

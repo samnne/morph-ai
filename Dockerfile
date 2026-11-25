@@ -1,4 +1,5 @@
-FROM python:3.12-slim
+FROM astral/uv:python3.12-bookworm-slim
+
 
 # 2. Prevent Python from writing .pyc files and enable unbuffered logging
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -9,10 +10,11 @@ WORKDIR /app
 
 # 4. Copy and install dependencies first to leverage Docker layer caching
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY pyproject.toml .
+RUN uv sync
 
 # 5. Copy the rest of your application code into the container
 COPY . .
-
+RUN uv run pyinstaller --clean --onefile --console --name main main.py
 # 6. Specify the command to run your application
-CMD ["python", "app.py"]
+CMD ["./dist/morphai"]

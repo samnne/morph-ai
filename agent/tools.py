@@ -16,17 +16,17 @@ def change_workspace(path: str):
     new_path = path.split(" ")
     if len(new_path) < 2:
         return False
-    settings.workspace = Path(new_path[1]).expanduser()
+    settings.set_workspace(Path(new_path[1]).expanduser())
     return True
 def list_files(dir: str) -> str:
     dir_path = Path(dir).expanduser()
     if not dir_path.is_dir():
         return "(Not Directory)"
-    elif dir_path == ".":
-        return "\n".join(p.name for p in (settings.workspace / dir_path).iterdir()) or "(empty)"
+    elif dir == ".":
+        return "\n".join(p.name for p in (settings.get_workspace() / dir_path).iterdir()) or "(empty)"
     elif dir_path.is_dir():
         return "\n".join(p.name for p in dir_path.iterdir()) or "(empty)"
-    return "\n".join(p.name for p in settings.workspace.iterdir()) or "(empty)"
+    return "\n".join(p.name for p in settings.get_workspace().iterdir()) or "(empty)"
 
 
 def write_file(
@@ -35,7 +35,7 @@ def write_file(
     if not len(new_lines):
         return "No Old Lines provided", "No New Lines"
 
-    target = Path(settings.workspace / filename)
+    target = Path(settings.get_workspace() / filename)
     tmp = tempfile.NamedTemporaryFile("w", dir=target.parent, delete=False)
 
     try:
@@ -78,7 +78,7 @@ FORBIDDEN_ARG_PATTERNS = {".."}
 
 def execute_command(command: str, args: list) -> str:
     
-    workspace = Path(settings.workspace).expanduser().resolve()
+    workspace = Path(settings.get_workspace()).expanduser().resolve()
     if not workspace.is_dir():
         return f"Error: Workspace path does not exist: {workspace}"
 
@@ -130,7 +130,7 @@ def execute_command(command: str, args: list) -> str:
 
 
 def read_file(filename: str) -> str:
-    path = settings.workspace / filename
+    path = settings.get_workspace() / filename
     if not path.is_file():
         return f"no file named: {filename}"
     return path.read_text()

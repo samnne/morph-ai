@@ -63,7 +63,7 @@ class Morph(App):
 
             with Vertical(id="bottom-dock"):
                 yield TextArea(placeholder="What are we working on today? shift+enter to submit prompt", id="prompt")
-                yield Button(label=settings.workspace.__str__(), id="ws-button")
+                yield Button(label=settings.get_workspace().__str__(), id="ws-button")
                 with Horizontal(id="loader"):
                     for i in range(5):
                         yield self.box[i]
@@ -175,8 +175,9 @@ class Morph(App):
                     return
 
                 button = self.query_exactly_one("#ws-button", Button)
-                self.notify(f"Workspace changed to {settings.workspace}")
-                button.label = settings.workspace.__str__()
+                self.notify(f"Workspace changed to {settings.get_workspace()}")
+                button.label = settings.get_workspace().__str__()
+                
                
                 return
             if query.lower() == "/tools":

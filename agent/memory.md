@@ -44,3 +44,11 @@ The user has asked for facts about McDonald's.
 - fact The user's current workspace contains CSC321, seng_365_b01_1, NOC, CG-Fall-2026, SENG310, and CSC360.
 - fact The user states that the pyqt app was built by an agent and is intended to be removed in the future.
 - fact The user wants the agent-harness README.md synchronized with the current implementation, including its root-level project layout.
+- fact The user's current accessible workspace listing includes Work, School, go, Downloads, Documents, Desktop, Pictures, Videos, Music, and numerous hidden configuration entries.
+- fact The user's current accessible workspace includes Work, School, go, disktree, standard home folders, output.txt, minicom.log, and several PNG images.
+- fact The user requested the current workspace listing; it currently appears to be a home directory containing Work/, School/, disktree/, go/, standard home folders, and hidden configuration directories.
+- fact The user's current workspace appears to be a home directory containing Work, School, disktree, go, standard home folders, output.txt, minicom.log, PNG images, and 25 seconds.txt.
+- fact The user's current workspace contains agent/, css/, database/, docker/, service/, config/, pyqt/, dist/, build/, main.py, modals.py, sessions.json, main.spec, morphai.spec, Dockerfile, requirements.txt, README.md, pyproject.toml, uv.lock, and hidden project/environment entries.
+- fact The user's current directory is a home-like directory containing Work, School, disktree, go, standard home folders, output.txt, minicom.log, three PNG images, 25 seconds.txt, and hidden configuration entries.
+- fact The user requested the current directory listing; it is a home-like directory containing Work, School, disktree, go, standard home folders, PNG images, log/text files, and hidden configuration entries.
+- fact The user requested recoloring the pyqt to-do app and adding dark mode; updated pyqt/main.py with a persistent Light/Dark theme selector, added teal themes in pyqt/themes.py, and verified theme switching and task preservation with an offscreen smoke test.
