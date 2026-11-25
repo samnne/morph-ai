@@ -2,11 +2,11 @@ import asyncio
 from contextlib import AsyncExitStack
 from getpass import getpass
 
-from agent_harness.agent.config import MODEL
+from agent.config import settings
 
-from agent_harness.agent.tools import TOOLS_SCHEMA, connect_mcp
+from agent.tools import TOOLS_SCHEMA, connect_mcp
 
-from agent_harness.agent.agent import chat, configure_model, get_model_config
+from agent.agent import chat, configure_model, get_model_config
 
 
 
@@ -77,7 +77,7 @@ async def main() -> None:
     print("Type /model to configure a model, or /quit to exit.")
     async with AsyncExitStack() as stack:
         await connect_mcp(stack)
-        print(f"Morph assistent ({MODEL}) with {len(TOOLS_SCHEMA)} tools - ctrl+c to quit")
+        print(f"Morph assistent ({settings.MODEL}) with {len(TOOLS_SCHEMA)} tools - ctrl+c to quit")
         try:
             while True:
                 question = input("prompt > ").strip()
@@ -95,7 +95,7 @@ async def main() -> None:
                     print_tools()
                     continue
                 if question.startswith("/"):
-                    print("Unknown command. Use /model or /quit.\n")
+                    print("Unknown command. Use /model or /tools or /quit.\n")
                     continue
                 print(f"assistant > {await chat(question)}\n")
         except (EOFError, KeyboardInterrupt):

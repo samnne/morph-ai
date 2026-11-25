@@ -1,6 +1,7 @@
 from contextlib import AsyncExitStack
 import os
 from pathlib import Path
+import shutil
 import subprocess
 
 import tempfile
@@ -8,16 +9,24 @@ import tempfile
 from mcp import ClientSession, stdio_client
 
 
-from agent_harness.agent.config import WORKSPACE, MCP_SERVERS, MEMORY
+from agent.config import settings 
 
-
+def change_workspace(path: str):
+    
+    new_path = path.split(" ")
+    if len(new_path) < 2:
+        return False
+    settings.workspace = Path(new_path[1]).expanduser()
+    return True
 def list_files(dir: str) -> str:
-    dir_path = Path(dir)
+    dir_path = Path(dir).expanduser()
     if not dir_path.is_dir():
         return "(Not Directory)"
+    elif dir_path == ".":
+        return "\n".join(p.name for p in (settings.workspace / dir_path).iterdir()) or "(empty)"
     elif dir_path.is_dir():
         return "\n".join(p.name for p in dir_path.iterdir()) or "(empty)"
-    return "\n".join(p.name for p in WORKSPACE.iterdir()) or "(empty)"
+    return "\n".join(p.name for p in settings.workspace.iterdir()) or "(empty)"
 
 
 def write_file(
@@ -26,7 +35,7 @@ def write_file(
     if not len(new_lines):
         return "No Old Lines provided", "No New Lines"
 
-    target = Path(WORKSPACE / filename)
+    target = Path(settings.workspace / filename)
     tmp = tempfile.NamedTemporaryFile("w", dir=target.parent, delete=False)
 
     try:
@@ -49,26 +58,79 @@ def write_file(
         raise
 
     return ("".join(old_lines), "".join(new_lines))
+ALLOWED_COMMANDS = {
+    "ls",
+    "git",
+    "cat",
+    "head",
+    "tail",
+    "grep",
+    "find",
+    "tree",
+    "pwd",
+    "pytest",
+    "python",
+    "uv",
+}
 
+# Block flag/arg injection patterns that bypass working directory constraints
+FORBIDDEN_ARG_PATTERNS = {".."}
 
 def execute_command(command: str, args: list) -> str:
+    
+    workspace = Path(settings.workspace).expanduser().resolve()
+    if not workspace.is_dir():
+        return f"Error: Workspace path does not exist: {workspace}"
+
+
+    base_cmd = os.path.basename(command.strip())
+    if base_cmd not in ALLOWED_COMMANDS:
+        return (
+            f"Error: Command '{base_cmd}' is not allowed. "
+            f"Permitted commands: {', '.join(sorted(ALLOWED_COMMANDS))}"
+        )
+
+   
+    resolved_bin = shutil.which(base_cmd)
+    if not resolved_bin:
+        return f"Error: Command '{base_cmd}' not found on system PATH."
+
+ 
+    for arg in args:
+        if any(part == ".." for part in Path(arg).parts):
+            return f"Error: Access denied. Argument '{arg}' attempts path traversal."
+
+   
     try:
         result = subprocess.run(
-            [command, *args],
+            [resolved_bin, *args],
             capture_output=True,
-            cwd=WORKSPACE,
+            cwd=workspace,
             text=True,
-            check=True
+            check=False,  
+            timeout=30,  
         )
-        print(result.stdout)
-        return result.stdout
-    except subprocess.CalledProcessError as e:
-        print("Command failed with exit code:", e.returncode)
-        print("Error output:\n", e.stderr)
+
+        stdout = result.stdout.strip()
+        stderr = result.stderr.strip()
+
+        if result.returncode != 0:
+            return f"Command exited with status {result.returncode}:\n{stderr or stdout}"
+
+        output = stdout or stderr or "(Command executed with no output)"
+    
+        if len(output) > 10_000:
+            return output[:10_000] + "\n\n... [Output truncated]"
+        return output
+
+    except subprocess.TimeoutExpired:
+        return "Error: Command timed out after 30 seconds."
+    except Exception as e:
+        return f"Execution error: {e}"
 
 
 def read_file(filename: str) -> str:
-    path = WORKSPACE / filename
+    path = settings.workspace / filename
     if not path.is_file():
         return f"no file named: {filename}"
     return path.read_text()
@@ -79,7 +141,7 @@ mcp_sessions: dict[str, ClientSession] = {}
 
 async def connect_mcp(stack: AsyncExitStack):
     """Launch a given mcp server"""
-    for name, params in MCP_SERVERS.items():
+    for name, params in settings.MCP_SERVERS.items():
         read, write = await stack.enter_async_context(stdio_client(params))
         session = await stack.enter_async_context(ClientSession(read, write))
         await session.initialize()
@@ -100,7 +162,7 @@ async def connect_mcp(stack: AsyncExitStack):
 
 def save_memory(fact: str):
     """APPEND one fact about the user to long-term memory"""
-    with MEMORY.open("a") as f:
+    with settings.MEMORY.open("a") as f:
         f.write(f"- fact {fact}\n")
     return f"saved: {fact}"
 

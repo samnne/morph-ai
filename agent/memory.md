@@ -1,0 +1,45 @@
+The user has asked for facts about McDonald's.
+- fact The user requested a Python script named poem.py that prints a poem line by line.
+- fact The user requested changing poem.py from printing a poem to fetching and printing a dad joke using an API.
+- fact The user asked me to run poem.py in their workspace.
+- fact The user asked me to run poem.py in the workspace.
+- fact The user asked me to run poem.py in the workspace.
+- fact The user's workspace contains Python files including agent.py, config.py, memory.py, poem.py, tools.py, and v0.py.
+- fact The user's workspace contains Python files including tools.py, config.py, agent.py, v0.py, memory.py, and poem.py.
+- fact The user requested running poem.py in the workspace.
+- fact The user wants their existing Python agent built into a real terminal user interface (TUI).
+- fact The user wants a read-only audit of their agent repository and explicitly does not want code written or changed.
+- fact The user requested a listing of the files and directories in the current workspace.
+- fact The user is working with a project whose src directory contains an agent_harness subdirectory.
+- fact The user's current workspace contains Python project files (pyproject.toml, uv.lock, src) and Go files (go.mod, morph.go).
+- fact The user asked to list the contents of src/agent_harness/.
+- fact The user requested a recursive nested tree of the current workspace, including src and every directory.
+- fact The user is working on the agent-harness (MorphAI) project and wants its README to reflect the current implementation.
+- fact The user is building a Textual-based agent UI and wants to understand how to keep other UI events responsive while awaiting v0.chat; for this discussion they requested explanations without code.
+- fact The user is troubleshooting code involving a `_run_tool` call and considering whether to await it.
+- fact The user is working with a Python async function named _run_tool that accepts name: str and arguments: str and returns str.
+- fact The user's current workspace contains src/, dist/, pyproject.toml, uv.lock, and README.md.
+- fact The user requested a Python script named joke.py to fetch a random dad joke from the internet; it was created and run successfully.
+- fact The user is working on a Python project with a pyqt/ folder and requested a basic main.py there.
+- fact The user's workspace includes src and pyqt directories and a pyproject.toml file.
+- fact The user's current workspace contains src/, pyproject.toml, uv.lock, README.md, dist/, and pyqt/.
+- fact The user requested a PyQt to-do list app in the workspace's pyqt/ folder; it is implemented with PyQt6 in pyqt/main.py, with setup instructions in pyqt/README.md.
+- fact The user's name is Sam.
+- fact The user requested a to-do list app in the pyqt folder; created a standalone PyQt6 app with persistent local JSON storage, editing, completion filters, and setup instructions.
+- fact The user's current workspace includes src/, pyqt/, dist/, README.md, pyproject.toml, uv.lock, .python-version, .venv/, .env, .git/, and .gitignore.
+- fact The user requested a listing of their workspace; it contains .git/, .gitignore, src/, .python-version, .venv/, uv.lock, pyproject.toml, .env, dist/, README.md, and pyqt/.
+- fact The user requested a current workspace listing; it contains .git, .gitignore, src, .python-version, .venv, uv.lock, pyproject.toml, .env, dist, README.md, and pyqt.
+- fact The user requested a current workspace listing; it contains .git/, .gitignore, src/, .python-version, .venv/, uv.lock, pyproject.toml, .env, dist/, README.md, and pyqt/.
+- fact The user asked to list their workspaces; the accessible current workspace contains src/, pyqt/, dist/, .git/, .venv/, README.md, pyproject.toml, uv.lock, .python-version, .gitignore, and .env.
+- fact The user requested a workspace listing; the current workspace contains .git/, .gitignore, src/, .python-version, .venv/, uv.lock, pyproject.toml, .env, dist/, README.md, and pyqt/.
+- fact The user requested a workspace file listing; the current workspace contains .git/, .gitignore, src/, .python-version, .venv/, uv.lock, pyproject.toml, .env, dist/, README.md, and pyqt/.
+- fact The user requested a workspace listing; the current workspace contains .git/, .gitignore, src/, .python-version, .venv/, uv.lock, pyproject.toml, .env, dist/, README.md, and pyqt/.
+- fact The user requested a workspace listing; the current workspace contains .git/, .gitignore, src/, .python-version, .venv/, uv.lock, pyproject.toml, .env, dist/, README.md, and pyqt/.
+- fact The user's current workspace is an agent-harness Python project requiring Python >=3.13, with src/agent_harness and an empty pyqt/ directory; its CLI entry points are agent-harness and ah.
+- fact The user requested a standalone to-do list app in pyqt/; implemented pyqt/main.py with PyQt6, local JSON persistence, editing, and completion filters, plus requirements and README.
+- fact The user requested a to-do list app; built a standalone PyQt6 app in pyqt/main.py with search, completion filters, editing, deletion, local JSON persistence, storage tests, and setup instructions.
+- fact The user's workspace currently contains agent/, css/, database/, docker/, service/, config/, pyqt/, dist/, main.py, modals.py, __init__.py, pyproject.toml, uv.lock, README.md, .git/, .venv/, .env, .gitignore, .dockerignore, and .python-version.
+- fact The user's current workspace listing includes agent/, css/, database/, docker/, service/, config/, pyqt/, dist/, main.py, modals.py, __init__.py, sessions.json, pyproject.toml, uv.lock, README.md, .git/, .venv/, .env, .gitignore, .dockerignore, and .python-version.
+- fact The user requested a current workspace listing; it includes agent, css, database, docker, service, config, pyqt, dist, main.py, modals.py, __init__.py, sessions.json, README.md, pyproject.toml, uv.lock, and hidden project/environment files.
+- fact The user's current workspace contains CSC321, seng_365_b01_1, NOC, CG-Fall-2026, SENG310, and CSC360.
+- fact The user states that the pyqt app was built by an agent and is intended to be removed in the future.

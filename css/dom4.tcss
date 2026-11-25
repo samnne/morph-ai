@@ -1,0 +1,83 @@
+/* Main screen wrapper */
+Screen {
+    background: $background;
+}
+
+#container {
+    width: 100%;
+    height: 100%;
+    padding: 1 2;
+}
+
+/* Chat history area */
+#text-container {
+    width: 100%;
+    height: 1fr;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+    padding: 1;
+}
+
+/* Logo / greeting banner */
+#greeting {
+    text-style: bold;
+    color: $accent;
+    background: $surface;
+    padding: 1 2;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 1;
+}
+
+/* Base message labels */
+Label {
+    width: 100%;
+    margin-top: 1;
+    margin-bottom: 0;
+}
+
+/* Tool execution readout */
+.not-text {
+    text-style: italic;
+    color: #ffffff70;
+    margin-left: 2;
+}
+
+/* Bottom dock: TextArea + Loader */
+#bottom-dock {
+    height: auto;
+    width: 100%;
+    margin-top: 1;
+}
+
+TextArea {
+    width: 100%;
+    height: 5;
+    border: tall $accent;
+    background: $surface;
+}
+
+TextArea:focus {
+    border: tall $primary;
+}
+
+/* Animated loader dots */
+#loader {
+    height: 1;
+    width: 100%;
+    align: center middle;
+    margin-top: 1;
+}
+
+.loader {
+    width: 2;
+    height: 1;
+    background: $accent;
+    margin: 0 1;
+    opacity: 0.0;
+}
+
+Button {
+    background: $background;
+    text-align: left;
+}

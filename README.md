@@ -20,7 +20,7 @@ From the repository root:
 uv sync
 ```
 
-Before using filesystem or command tools, edit `WORKSPACE` in `src/agent_harness/agent/config.py` to point to your checkout or intended working directory. It is currently hard-coded to `/home/mashce/Work/agent_harness`; it is not inferred from your current directory or configurable through an environment variable.
+Before using filesystem or command tools, edit `workspace` in `src/agent_harness/agent/config.py` to point to your checkout or intended working directory. It is currently hard-coded to `/home/mashce/Work/agent_harness`; it is not inferred from your current directory or configurable through an environment variable.
 
 Create a `.env` file in the project root, for example:
 
@@ -95,9 +95,9 @@ Ctrl+C or end-of-input also exits the prompt loop. The CLI needs its MCP servers
 | Tool | Implementation |
 | --- | --- |
 | `list_files` | Lists immediate entries in the supplied directory. Relative paths use the process's current directory. |
-| `read_file` | Reads a text file relative to `WORKSPACE` unless an absolute path is supplied. |
+| `read_file` | Reads a text file relative to `workspace` unless an absolute path is supplied. |
 | `write_file` | Creates/overwrites a file, or replaces individual lines containing a case-insensitive match. See the caveats below. |
-| `execute_command` | Runs an executable with an argument list, with `WORKSPACE` as its working directory, and captures output. This is not limited to Python commands. |
+| `execute_command` | Runs an executable with an argument list, with `workspace` as its working directory, and captures output. This is not limited to Python commands. |
 | `save_memory` | Appends a fact to `src/agent_harness/agent/memory.md`. |
 
 **Safety:** Tools run with your user account's permissions. There is no approval step, workspace containment enforcement, or command sandbox. Only use this harness with trusted prompts and an appropriately restricted environment. Tool names and arguments are printed to the terminal and may contain sensitive data.
@@ -117,7 +117,7 @@ The CLI starts these processes, initializes MCP sessions, discovers their tools,
 
 Each `chat()` invocation starts a new message list: conversation history is retained within a single tool-call loop, not across separate user prompts. The UI displays previous exchanges, but does not send that transcript back to the model.
 
-The memory helpers are intended to persist user facts in `src/agent_harness/agent/memory.md`. This is separate from `WORKSPACE`; see the current memory-loading bug below.
+The memory helpers are intended to persist user facts in `src/agent_harness/agent/memory.md`. This is separate from `workspace`; see the current memory-loading bug below.
 
 ## Project layout
 

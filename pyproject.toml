@@ -10,12 +10,17 @@ dependencies = [
     "mcp>=2.3.0",
     "openai>=3.57.0",
     "pydantic>=2.14.4",
+    "pyfiglet>=1.0.4",
+    "pyinstaller>=6.22.3",
     "textual>=8.2.8",
 ]
 
+[tool.uv]
+package = false
+
 [project.scripts]
-agent-harness = "agent_harness.main:main"
-ah = "agent_harness.main:main"
+agent-harness = "main:main"
+ah = "./main.py"
 
 [build-system]
 requires = ["uv_build>=0.13.0,<0.14.0"]
